@@ -1,0 +1,40 @@
+{{- if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "coworker-client.fullname" . }}
+  labels:
+    {{- include "coworker-client.labels" . | nindent 4 }}
+  {{- with .Values.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if .Values.ingress.className }}
+  ingressClassName: {{ .Values.ingress.className }}
+  {{- end }}
+  {{- with .Values.ingress.tls }}
+  tls:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  rules:
+    - host: {{ .Values.ingress.host | quote }}
+      http:
+        paths:
+          # API-verkeer → backend
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "coworker-client.fullname" . }}-backend
+                port:
+                  name: http
+          # Al het overige → frontend
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "coworker-client.fullname" . }}-frontend
+                port:
+                  name: http
+{{- end }}
