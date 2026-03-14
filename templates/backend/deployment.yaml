@@ -77,16 +77,14 @@ spec:
             - name: IMAP_POLL_INTERVAL_MS
               value: {{ .Values.backend.imap.pollIntervalMs | quote }}
           livenessProbe:
-            httpGet:
-              path: /actuator/health/liveness
-              port: http
+            tcpSocket:
+              port: 8090
             initialDelaySeconds: 60
             periodSeconds: 15
             failureThreshold: 3
           readinessProbe:
-            httpGet:
-              path: /actuator/health/readiness
-              port: http
+            tcpSocket:
+              port: 8090
             initialDelaySeconds: 30
             periodSeconds: 10
             failureThreshold: 3
